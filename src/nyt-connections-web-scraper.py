@@ -32,5 +32,5 @@ def scrape_connections_answers(start_id, end_id):
     with open('nyt_connections_answers.json', 'w') as f:
         json.dump(all_answers, f, indent=4)
 
-scrape_connections_answers(1, 522)
+scrape_connections_answers(1, 527)
 print("Scraping completed. Answers saved to 'nyt_connections_answers.json'.")

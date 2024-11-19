@@ -24010,5 +24010,235 @@
             "emoji": "\ud83d\udfea",
             "color": "#df7bea"
         }
+    ],
+    "523": [
+        {
+            "description": "FISSURE",
+            "words": [
+                "CRACK",
+                "HOLE",
+                "LEAK",
+                "PUNCTURE"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "ELEMENTS OF WRITING",
+            "words": [
+                "LETTER",
+                "PHRASE",
+                "SENTENCE",
+                "WORD"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "INSTRUMENTS YOU BLOW INTO",
+            "words": [
+                "JUG",
+                "PIPE",
+                "RECORDER",
+                "WHISTLE"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "___ OF TIME",
+            "words": [
+                "NICK",
+                "PASSAGE",
+                "SANDS",
+                "WASTE"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
+    ],
+    "524": [
+        {
+            "description": "THINGS THAT PREVENT LEAKS",
+            "words": [
+                "CAP",
+                "COVER",
+                "PLUG",
+                "SEAL"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "KINDS OF HATS",
+            "words": [
+                "BERET",
+                "DERBY",
+                "PILLBOX",
+                "SNAPBACK"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "COLLEGE FOOTBALL TEAM MEMBERS",
+            "words": [
+                "GATOR",
+                "SOONER",
+                "VOLUNTEER",
+                "WOLVERINE"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "GO ___",
+            "words": [
+                "BANANAS",
+                "COMMANDO",
+                "FIGURE",
+                "ROGUE"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
+    ],
+    "525": [
+        {
+            "description": "ALLIANCE",
+            "words": [
+                "ASSOCIATION",
+                "GUILD",
+                "LEAGUE",
+                "UNION"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "CLOSE-FITTING ",
+            "words": [
+                "CLINGY",
+                "SLEEK",
+                "SLINKY",
+                "SNUG"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "OCCASIONS WHEN ONE MIGHT KNEEL",
+            "words": [
+                "APOLOGY",
+                "DUBBING",
+                "PRAYER",
+                "PROPOSAL"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "WHAT AN APOSTROPHE MIGHT INDICATE",
+            "words": [
+                "CONTRACTION",
+                "FOOT",
+                "POSSESSIVE",
+                "QUOTATION"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
+    ],
+    "526": [
+        {
+            "description": "USED IN HAIR CARE",
+            "words": [
+                "COMB",
+                "DRYER",
+                "HAIRSPRAY",
+                "ROLLERS"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "MONTHLY EXPENSES",
+            "words": [
+                "GAS",
+                "INTERNET",
+                "PHONE",
+                "RENT"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "THINGS WITH SPOTS",
+            "words": [
+                "DALMATIAN",
+                "DIE",
+                "DOMINO",
+                "LADYBUG"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "___ CRAB",
+            "words": [
+                "FIDDLER",
+                "HERMIT",
+                "HORSESHOE",
+                "SPIDER"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
+    ],
+    "527": [
+        {
+            "description": "AREA OF EXPERTISE",
+            "words": [
+                "CONCENTRATION",
+                "FIELD",
+                "FOCUS",
+                "SPECIALTY"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "WAYS TO UNLOCK A DEVICE",
+            "words": [
+                "FACE",
+                "FINGERPRINT",
+                "PASSWORD",
+                "PIN"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "PASTA SHAPES",
+            "words": [
+                "EAR",
+                "ELBOW",
+                "RIBBON",
+                "WHEEL"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "DOUBLE ___",
+            "words": [
+                "AGENT",
+                "DRIBBLE",
+                "JEOPARDY",
+                "STANDARD"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
     ]
 }
