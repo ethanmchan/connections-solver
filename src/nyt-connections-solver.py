@@ -84,11 +84,16 @@ def solve_puzzle(words, embeddings):
 
 # Display the puzzle as a 4x4 table
 def display_puzzle_table(words):
+    max_word_length = max(len(word) for word in words)
+    column_width = max_word_length + 2
+    separator = "-" * ((column_width + 3) * 4 + 1)
+
     print("\nPuzzle Grid:")
-    print("-" * 33)
+    print(separator)
     for i in range(0, 16, 4):
-        print(f"| {words[i]:<8} | {words[i+1]:<8} | {words[i+2]:<8} | {words[i+3]:<8} |")
-        print("-" * 33)
+        row = "|".join(f" {words[j]:<{column_width}}" for j in range(i, i + 4))
+        print(f"|{row} |")
+        print(separator)
 
 # Main Function
 def main():
