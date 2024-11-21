@@ -24240,5 +24240,97 @@
             "emoji": "\ud83d\udfea",
             "color": "#df7bea"
         }
+    ],
+    "528": [
+        {
+            "description": "SOUND LIKE A DOG",
+            "words": [
+                "BARK",
+                "BAY",
+                "HOWL",
+                "SNARL"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "BROADCAST, AS ONLINE MEDIA",
+            "words": [
+                "AIR",
+                "PLAY",
+                "RUN",
+                "STREAM"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "COCKTAIL-MAKING VERBS",
+            "words": [
+                "GARNISH",
+                "MUDDLE",
+                "STIR",
+                "STRAIN"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "ORGANIZATIONAL STRUCTURES, METAPHORICALLY",
+            "words": [
+                "CHAIN",
+                "LADDER",
+                "PYRAMID",
+                "TREE"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
+    ],
+    "529": [
+        {
+            "description": "KINDS OF SHIRTS",
+            "words": [
+                "FLANNEL",
+                "OXFORD",
+                "POLO",
+                "TEE"
+            ],
+            "emoji": "\ud83d\udfe8",
+            "color": "#fbd400"
+        },
+        {
+            "description": "SPHERES IN MILK TEA",
+            "words": [
+                "BOBA",
+                "BUBBLE",
+                "PEARL",
+                "TAPIOCA"
+            ],
+            "emoji": "\ud83d\udfe9",
+            "color": "#69e352"
+        },
+        {
+            "description": "MARINE INVERTEBRATES, FAMILIARLY",
+            "words": [
+                "CORAL",
+                "JELLY",
+                "SPONGE",
+                "STAR"
+            ],
+            "emoji": "\ud83d\udfe6",
+            "color": "#5492ff"
+        },
+        {
+            "description": "STARTS OF PASTA NAMES",
+            "words": [
+                "FETT",
+                "PENN",
+                "TORTE",
+                "ZIT"
+            ],
+            "emoji": "\ud83d\udfea",
+            "color": "#df7bea"
+        }
     ]
 }
