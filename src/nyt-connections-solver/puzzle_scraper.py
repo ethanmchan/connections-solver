@@ -1,3 +1,6 @@
+# STEP 1: Scrapes the NYT Connections Archive Website for past Connections answers for building dataset.
+# Scrapes into nyt_connections_dataset.json
+
 import requests
 from bs4 import BeautifulSoup
 import json

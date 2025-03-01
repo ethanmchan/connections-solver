@@ -1,3 +1,6 @@
+# STEP 2: Reformats data from nyt_connections_dataset.json into a prompt/response format for LLM fine-tuning.
+# Reformats into formatted_nyt_connections.json
+
 import json
 
 # Load raw puzzle data
