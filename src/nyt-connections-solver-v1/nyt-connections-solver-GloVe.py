@@ -99,8 +99,8 @@ def display_puzzle_table(words):
 def main():
     # Load GloVe embeddings with reduced overhead
     glove_embeddings = load_embeddings(
-        glove_path="glove.6B.100d.txt",
-        pickle_path="glove.6B.100d.pkl"
+        glove_path="./src/nyt-connections-solver-v1/glove_embeddings/glove.6B.100d.txt",
+        pickle_path="./src/nyt-connections-solver-v1/glove_embeddings/glove.6B.100d.pkl"
     )
     
     # Input: Puzzle ID

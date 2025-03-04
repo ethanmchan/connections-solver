@@ -55,4 +55,4 @@ def scrape_connections_answers(start_id, end_id, output_file):
 
 # Main execution
 if __name__ == "__main__":
-    scrape_connections_answers(1, 529, "nyt_connections_answers.json")
+    scrape_connections_answers(1, 545, "nyt_connections_answers.json")
