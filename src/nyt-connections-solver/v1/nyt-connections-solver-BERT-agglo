@@ -1,0 +1,100 @@
+import json
+import numpy as np
+from sklearn.cluster import AgglomerativeClustering
+from scipy.spatial.distance import cdist
+import itertools
+from transformers import AutoTokenizer, AutoModel
+import torch
+from tqdm import tqdm
+
+# Initialize BERT tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+model = AutoModel.from_pretrained("bert-base-uncased")
+
+# Function to get BERT embeddings for words
+def get_bert_embeddings(words):
+    embeddings = []
+    for word in words:
+        inputs = tokenizer(word, return_tensors="pt", truncation=True, max_length=5)
+        with torch.no_grad():
+            outputs = model(**inputs)
+        cls_embedding = outputs.last_hidden_state[:, 0, :].squeeze().numpy()
+        embeddings.append(cls_embedding)
+    return np.array(embeddings)
+
+# Function to cluster words ensuring each group has exactly 4 words
+def cluster_words_fixed(vectors, words, n_clusters=4):
+    clustering = AgglomerativeClustering(n_clusters=n_clusters, linkage="ward").fit(vectors)
+    initial_labels = clustering.labels_
+    
+    clusters = {i: [] for i in range(n_clusters)}
+    for word, label in zip(words, initial_labels):
+        clusters[label].append(word)
+    
+    while any(len(group) != 4 for group in clusters.values()):
+        all_words = list(itertools.chain(*clusters.values()))
+        distances = cdist(vectors, vectors, metric="cosine")
+        
+        new_clusters = {i: [] for i in range(n_clusters)}
+        word_indices = list(range(len(all_words)))
+        
+        for group_id in range(n_clusters):
+            best_words = sorted(word_indices, key=lambda idx: np.sum(distances[idx]))[:4]
+            new_clusters[group_id] = [all_words[i] for i in best_words]
+            word_indices = [i for i in word_indices if i not in best_words]
+        
+        clusters = new_clusters
+    
+    return clusters
+
+# Solve the puzzle using BERT embeddings
+def solve_puzzle_with_bert(words):
+    vectors = get_bert_embeddings(words)
+    groups = cluster_words_fixed(vectors, words)
+    return groups
+
+# Evaluate performance on dataset
+def evaluate_dataset():
+    dataset_file = "./nyt_connections_dataset.json"
+    output_file = "./nyt_connections_results.json"
+    
+    with open(dataset_file, "r") as file:
+        dataset = json.load(file)
+    
+    results = {}
+    accuracy_distribution = {"0/4": 0, "1/4": 0, "2/4": 0, "3/4": 0, "4/4": 0}
+    
+    for puzzle_id, puzzle_data in tqdm(dataset.items(), desc="Processing Puzzles", unit="puzzle"):
+        words = puzzle_data["words"]
+        actual_groups = list(puzzle_data["categories"].values())
+        predicted_groups = solve_puzzle_with_bert(words)
+        
+        # Convert predicted groups to list of sets for comparison
+        predicted_sets = [set(group) for group in predicted_groups.values()]
+        actual_sets = [set(group) for group in actual_groups]
+        
+        # Count how many groups were correctly matched
+        correct_count = sum(1 for pred in predicted_sets if pred in actual_sets)
+        accuracy_distribution[f"{correct_count}/4"] += 1
+        
+        results[puzzle_id] = {
+            "puzzle_id": puzzle_id,
+            "predicted_groups": predicted_groups,
+            "actual_groups": actual_groups,
+            "correct_groupings": correct_count
+        }
+    
+    # Save results to JSON file
+    with open(output_file, "w") as outfile:
+        json.dump({"results": results, "accuracy_distribution": accuracy_distribution}, outfile, indent=4)
+    
+    print("Evaluation complete. Results saved to", output_file)
+    print("Accuracy Distribution:", accuracy_distribution)
+
+# Main function
+def main():
+    evaluate_dataset()
+
+# Run the program
+if __name__ == "__main__":
+    main()

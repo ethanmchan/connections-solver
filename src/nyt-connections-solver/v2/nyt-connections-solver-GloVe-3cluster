@@ -1,0 +1,172 @@
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans, AgglomerativeClustering, SpectralClustering
+from scipy.spatial.distance import cdist
+from scipy.stats import mode
+import itertools
+from tqdm import tqdm
+from glove_utils import load_embeddings
+import os
+
+# Load GloVe embeddings
+def get_glove_embeddings(words, embeddings):
+    embedding_dim = len(next(iter(embeddings.values())))  # Determine dimension dynamically
+    word_vectors = []
+    for word in words:
+        word = word.lower()
+        if word in embeddings:
+            word_vectors.append(embeddings[word])
+        else:
+            word_vectors.append(np.zeros(embedding_dim))  # Use zero vector for unknown words
+    return np.array(word_vectors)
+
+# Ensemble clustering function
+def ensemble_cluster_words(vectors, words, n_clusters=4):
+    # Clustering models
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    agglo = AgglomerativeClustering(n_clusters=n_clusters, linkage="ward")
+    spectral = SpectralClustering(n_clusters=n_clusters, random_state=42, affinity='nearest_neighbors')
+
+    # Get cluster predictions
+    kmeans_labels = kmeans.fit_predict(vectors)
+    agglo_labels = agglo.fit_predict(vectors)
+    spectral_labels = spectral.fit_predict(vectors)
+
+    # Combine predictions into a matrix
+    all_labels = np.vstack([kmeans_labels, agglo_labels, spectral_labels])
+
+    # Compute the most common cluster assignment for each word
+    final_clusters = mode(all_labels, axis=0, keepdims=True)[0].flatten()
+
+    # Organizing words into final clusters
+    cluster_groups = {i: [] for i in range(n_clusters)}
+    for word, cluster_id in zip(words, final_clusters):
+        cluster_groups[cluster_id].append(word)
+
+    return cluster_groups
+
+# Solve the puzzle using GloVe embeddings
+def solve_puzzle_with_glove(words, embeddings):
+    vectors = get_glove_embeddings(words, embeddings)
+    groups = ensemble_cluster_words(vectors, words)
+    return groups
+
+# Main evaluation function
+def evaluate_all_embeddings():
+    dataset_file = "./nyt_connections_dataset.json"
+    results_dir = "./src/nyt-connections-solver/v2/results"
+    os.makedirs(results_dir, exist_ok=True)
+    embedding_dims = [50, 100, 200, 300]
+    results_summary = {}
+    
+    with open(dataset_file, "r") as file:
+        dataset = json.load(file)
+    
+    for embedding_dim in embedding_dims:
+        print(f"Evaluating {embedding_dim}d embeddings...")
+        output_file = f"{results_dir}/nyt_connections_results_{embedding_dim}d.json"
+        
+        glove_embeddings = load_embeddings(
+            glove_path=f"./src/nyt-connections-solver/glove_embeddings/glove.6B.{embedding_dim}d.txt",
+            pickle_path=f"./src/nyt-connections-solver/glove_embeddings/glove.6B.{embedding_dim}d.pkl"
+        )
+        
+        results = {}
+        accuracy_distribution = {"0/4": 0, "1/4": 0, "2/4": 0, "3/4": 0, "4/4": 0}
+        total_correct_groups = 0
+        total_groups = 0
+        
+        for puzzle_id, puzzle_data in tqdm(dataset.items(), desc=f"Processing {embedding_dim}d Puzzles", unit="puzzle"):
+            words = puzzle_data["words"]
+            actual_groups = list(puzzle_data["categories"].values())
+            predicted_groups = solve_puzzle_with_glove(words, glove_embeddings)
+            
+            # Convert predicted groups to list of sets for comparison
+            predicted_sets = [set(group) for group in predicted_groups.values()]
+            actual_sets = [set(group) for group in actual_groups]
+            
+            # Count how many groups were correctly matched
+            correct_count = sum(1 for pred in predicted_sets if pred in actual_sets)
+            accuracy_distribution[f"{correct_count}/4"] += 1
+            total_correct_groups += correct_count
+            total_groups += 4  # Each puzzle has 4 groups
+            
+            results[puzzle_id] = {
+                "puzzle_id": puzzle_id,
+                "predicted_groups": {key: " | ".join(group) for key, group in predicted_groups.items()},
+                "actual_groups": [" | ".join(group) for group in actual_groups],
+                "correct_groupings": correct_count
+            }
+        
+        overall_accuracy = (accuracy_distribution["4/4"] / len(dataset) * 100) if len(dataset) > 0 else 0
+        overall_group_accuracy = (total_correct_groups / total_groups * 100) if total_groups > 0 else 0
+        
+        # Save results to JSON file
+        with open(output_file, "w") as outfile:
+            json.dump({
+                "results": results,
+                "accuracy_distribution": accuracy_distribution,
+                "overall_accuracy": overall_accuracy,
+                "overall_group_accuracy": overall_group_accuracy
+            }, outfile, indent=4)
+        
+        results_summary[embedding_dim] = {
+            "overall_accuracy": overall_accuracy,
+            "overall_group_accuracy": overall_group_accuracy
+        }
+    
+    print_summary_table(results_summary)
+    plot_summary(results_summary)
+    
+    print("Evaluation complete for all embeddings. Results saved in", results_dir)
+
+# Print summary table
+def print_summary_table(results_summary):
+    print("\nSummary Table:")
+    print("+----------------+------------------+------------------+")
+    print("| Embedding Dim  | Overall Accuracy | Group Accuracy   |")
+    print("+----------------+------------------+------------------+")
+    for dim, res in results_summary.items():
+        print(f"| {dim:<14} | {res['overall_accuracy']:.2f}%            | {res['overall_group_accuracy']:.2f}%            |")
+    print("+----------------+------------------+------------------+")
+
+# Plot comparison of overall accuracy and group accuracy
+def plot_summary(results_summary):
+    embedding_dims = list(results_summary.keys())
+    overall_accuracies = [results_summary[dim]["overall_accuracy"] for dim in embedding_dims]
+    group_accuracies = [results_summary[dim]["overall_group_accuracy"] for dim in embedding_dims]
+    
+    plt.figure(figsize=(10, 6))
+    bar_width = 0.4
+    index = np.arange(len(embedding_dims))
+    
+    bars1 = plt.bar(index, overall_accuracies, bar_width, label='Overall Accuracy (4/4)', alpha=0.7)
+    bars2 = plt.bar(index + bar_width, group_accuracies, bar_width, label='Overall Group Accuracy', alpha=0.7)
+    
+    plt.xlabel("GloVe Embedding Dimension")
+    plt.ylabel("Accuracy (%)")
+    plt.title("Comparison of Accuracy Across GloVe Embeddings")
+    plt.xticks(index + bar_width / 2, embedding_dims)
+    plt.legend()
+    
+    # Add text labels above bars with better positioning
+    for bar in bars1:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height + 0.1, f"{height:.1f}%", ha='center', fontsize=12)
+    
+    for bar in bars2:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height + 0.1, f"{height:.1f}%", ha='center', fontsize=12)
+    
+    plt.ylim(0, max(max(overall_accuracies), max(group_accuracies)) * 1.2)  # Extend y-axis a bit for better visibility
+    
+    plt.show()
+
+# Main function
+def main():
+    evaluate_all_embeddings()
+
+# Run the program
+if __name__ == "__main__":
+    main()

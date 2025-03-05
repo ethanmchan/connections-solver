@@ -1,0 +1,23 @@
+import pickle
+import numpy as np
+from tqdm import tqdm
+
+glove_txt_path = "./src/nyt-connections-solver-v1/glove_embeddings/glove.6B.50d.txt"
+glove_pkl_path = "./src/nyt-connections-solver-v1/glove_embeddings/glove.6B.50d.pkl"
+
+def load_glove_embeddings(glove_path):
+    embeddings = {}
+    with open(glove_path, "r", encoding="utf-8") as f:
+        for line in tqdm(f, desc="Loading GloVe embeddings"):
+            values = line.strip().split()
+            word = values[0]
+            vector = np.array(values[1:], dtype=np.float32)
+            embeddings[word] = vector
+    return embeddings
+
+glove_embeddings = load_glove_embeddings(glove_txt_path)
+
+with open(glove_pkl_path, "wb") as pkl_file:
+    pickle.dump(glove_embeddings, pkl_file)
+
+print(f"Pickle file saved at {glove_pkl_path}")
