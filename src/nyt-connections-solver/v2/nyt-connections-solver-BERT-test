@@ -10,9 +10,12 @@ import os
 
 # Load BERT embeddings with normalization
 def get_bert_embeddings(words):
-    model = SentenceTransformer('all-mpnet-base-v2')  # Improved model for similarity tasks
-    word_vectors = model.encode(words)
-    return normalize(np.array(word_vectors))  # Normalize for better similarity calculations
+    model = SentenceTransformer('all-mpnet-base-v2')  # More powerful transformer model
+    word_vectors = model.encode(words, normalize_embeddings=True)
+    return np.array(word_vectors)
+    # model = SentenceTransformer('all-mpnet-base-v2')  # Improved model for similarity tasks
+    # word_vectors = model.encode(words)
+    # return normalize(np.array(word_vectors))  # Normalize for better similarity calculations
 
 # Compute pairwise cosine similarities
 def compute_similarity_matrix(vectors):
@@ -140,6 +143,9 @@ def evaluate_all_embeddings():
         json.dump(summary_output, outfile, indent=4)
     
     print("Evaluation complete for BERT embeddings. Results saved in", results_dir)
+
+    print("Overall Accuracy:", overall_accuracy)
+    print("Overall Group Accuracy:", overall_group_accuracy)
     
     # Plot accuracy distribution
     plot_accuracy_distribution(accuracy_distribution)
