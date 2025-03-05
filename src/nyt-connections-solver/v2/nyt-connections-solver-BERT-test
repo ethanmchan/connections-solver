@@ -63,6 +63,24 @@ def solve_puzzle_with_bert(words):
     groups = find_best_groups(words, vectors)
     return groups
 
+# Plot accuracy distribution
+def plot_accuracy_distribution(accuracy_distribution):
+    categories = list(accuracy_distribution.keys())
+    values = list(accuracy_distribution.values())
+    
+    plt.figure(figsize=(8, 5))
+    plt.bar(categories, values, color='skyblue')
+    
+    plt.xlabel("Correct Groups (Out of 4)")
+    plt.ylabel("Number of Puzzles")
+    plt.title("Accuracy Distribution of BERT Predictions")
+    
+    # Add text labels above bars
+    for i, value in enumerate(values):
+        plt.text(i, value + 0.5, str(value), ha='center', fontsize=10)
+    
+    plt.show()
+
 # Main evaluation function
 def evaluate_all_embeddings():
     dataset_file = "./nyt_connections_dataset.json"
@@ -111,16 +129,20 @@ def evaluate_all_embeddings():
         "overall_group_accuracy": overall_group_accuracy
     }
     
+    summary_output = {
+        "results": results,
+        "accuracy_distribution": accuracy_distribution,
+        "overall_accuracy": overall_accuracy,
+        "overall_group_accuracy": overall_group_accuracy
+    }
+    
+    with open(output_file, "w") as outfile:
+        json.dump(summary_output, outfile, indent=4)
+    
     print("Evaluation complete for BERT embeddings. Results saved in", results_dir)
     
-    # Print summary to console
-    print("\nSummary Table:")
-    print("+--------+------------------+------------------+")
-    print("| Model  | Overall Accuracy | Group Accuracy   |")
-    print("+--------+------------------+------------------+")
-    for model, res in results_summary.items():
-        print(f"| {model:<6} | {res['overall_accuracy']:.2f}%            | {res['overall_group_accuracy']:.2f}%            |")
-    print("+--------+------------------+------------------+")
+    # Plot accuracy distribution
+    plot_accuracy_distribution(accuracy_distribution)
 
 # Main function
 def main():
