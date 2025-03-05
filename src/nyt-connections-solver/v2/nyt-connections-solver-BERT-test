@@ -1,0 +1,131 @@
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+from itertools import combinations
+from sentence_transformers import SentenceTransformer
+from sklearn.preprocessing import normalize
+from scipy.spatial.distance import cosine
+from tqdm import tqdm
+import os
+
+# Load BERT embeddings with normalization
+def get_bert_embeddings(words):
+    model = SentenceTransformer('all-mpnet-base-v2')  # Improved model for similarity tasks
+    word_vectors = model.encode(words)
+    return normalize(np.array(word_vectors))  # Normalize for better similarity calculations
+
+# Compute pairwise cosine similarities
+def compute_similarity_matrix(vectors):
+    n = len(vectors)
+    similarity_matrix = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                similarity_matrix[i, j] = 1 - cosine(vectors[i], vectors[j])  # Cosine similarity
+    return similarity_matrix
+
+# Find the best groups of 4 using similarity ranking
+def find_best_groups(words, vectors):
+    similarity_matrix = compute_similarity_matrix(vectors)
+    word_indices = list(range(len(words)))
+    
+    # Generate all possible 4-word combinations
+    possible_groups = list(combinations(word_indices, 4))
+    
+    # Score each group based on internal similarity
+    def group_score(group):
+        i, j, k, l = group
+        return (
+            similarity_matrix[i, j] + similarity_matrix[i, k] + similarity_matrix[i, l] +
+            similarity_matrix[j, k] + similarity_matrix[j, l] + similarity_matrix[k, l]
+        ) / 6  # Average pairwise similarity in the group
+    
+    # Rank groups by similarity
+    ranked_groups = sorted(possible_groups, key=group_score, reverse=True)
+    
+    # Select the top 4 groups without overlapping words
+    selected_groups = []
+    used_words = set()
+    for group in ranked_groups:
+        if not any(word in used_words for word in group):
+            selected_groups.append(group)
+            used_words.update(group)
+        if len(selected_groups) == 4:
+            break
+    
+    # Convert index groups to word groups
+    final_groups = {i: [words[idx] for idx in group] for i, group in enumerate(selected_groups)}
+    return final_groups
+
+# Solve the puzzle using similarity-based word grouping
+def solve_puzzle_with_bert(words):
+    vectors = get_bert_embeddings(words)
+    groups = find_best_groups(words, vectors)
+    return groups
+
+# Main evaluation function
+def evaluate_all_embeddings():
+    dataset_file = "./nyt_connections_dataset.json"
+    results_dir = "./src/nyt-connections-solver/v2/results"
+    os.makedirs(results_dir, exist_ok=True)
+    results_summary = {}
+    
+    with open(dataset_file, "r") as file:
+        dataset = json.load(file)
+    
+    print("Evaluating BERT embeddings...")
+    output_file = f"{results_dir}/nyt_connections_results_bert.json"
+    
+    results = {}
+    accuracy_distribution = {"0/4": 0, "1/4": 0, "2/4": 0, "3/4": 0, "4/4": 0}
+    total_correct_groups = 0
+    total_groups = 0
+    
+    for puzzle_id, puzzle_data in tqdm(dataset.items(), desc="Processing BERT Puzzles", unit="puzzle"):
+        words = puzzle_data["words"]
+        actual_groups = list(puzzle_data["categories"].values())
+        predicted_groups = solve_puzzle_with_bert(words)
+        
+        # Convert predicted groups to list of sets for comparison
+        predicted_sets = [set(group) for group in predicted_groups.values()]
+        actual_sets = [set(group) for group in actual_groups]
+        
+        # Count how many groups were correctly matched
+        correct_count = sum(1 for pred in predicted_sets if pred in actual_sets)
+        accuracy_distribution[f"{correct_count}/4"] += 1
+        total_correct_groups += correct_count
+        total_groups += 4  # Each puzzle has 4 groups
+        
+        results[puzzle_id] = {
+            "puzzle_id": puzzle_id,
+            "predicted_groups": {key: " | ".join(group) for key, group in predicted_groups.items()},
+            "actual_groups": [" | ".join(group) for group in actual_groups],
+            "correct_groupings": correct_count
+        }
+    
+    overall_accuracy = (accuracy_distribution["4/4"] / len(dataset) * 100) if len(dataset) > 0 else 0
+    overall_group_accuracy = (total_correct_groups / total_groups * 100) if total_groups > 0 else 0
+    
+    results_summary['BERT'] = {
+        "overall_accuracy": overall_accuracy,
+        "overall_group_accuracy": overall_group_accuracy
+    }
+    
+    print("Evaluation complete for BERT embeddings. Results saved in", results_dir)
+    
+    # Print summary to console
+    print("\nSummary Table:")
+    print("+--------+------------------+------------------+")
+    print("| Model  | Overall Accuracy | Group Accuracy   |")
+    print("+--------+------------------+------------------+")
+    for model, res in results_summary.items():
+        print(f"| {model:<6} | {res['overall_accuracy']:.2f}%            | {res['overall_group_accuracy']:.2f}%            |")
+    print("+--------+------------------+------------------+")
+
+# Main function
+def main():
+    evaluate_all_embeddings()
+
+# Run the program
+if __name__ == "__main__":
+    main()
